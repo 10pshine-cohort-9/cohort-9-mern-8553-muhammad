@@ -1,4 +1,5 @@
 const Note = require("../models/note.model");
+const mongoose = require("mongoose");
 const createNote = async (req, res) => 
     {
     try 
@@ -36,17 +37,18 @@ const getAllNotes = async (req, res) => {
 const getNoteById = async (req, res) => {
     try {
         const { id } = req.params;
-
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+        message: "Invalid note ID"
+    });
+}
         const note = await Note.findById(id);
-
         if (!note) {
             return res.status(404).json({
                 message: "Note not found"
             });
         }
-
         res.status(200).json(note);
-
     } catch (error) {
         res.status(500).json({
             message: error.message
@@ -56,8 +58,12 @@ const getNoteById = async (req, res) => {
 const updateNote = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+        message: "Invalid note ID"
+    });
+}
         const { title, content } = req.body;
-
         const updatedNote = await Note.findByIdAndUpdate(
             id,
             {
@@ -68,7 +74,6 @@ const updateNote = async (req, res) => {
                 new: true
             }
         );
-
         if (!updatedNote) {
             return res.status(404).json({
                 message: "Note not found"
@@ -89,20 +94,21 @@ const updateNote = async (req, res) => {
 const deleteNote = async (req, res) => {
     try {
         const { id } = req.params;
-
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+        message: "Invalid note ID"
+    });
+}
         const deletedNote = await Note.findByIdAndDelete(id);
-
         if (!deletedNote) {
             return res.status(404).json({
                 message: "Note not found"
             });
         }
-
         res.status(200).json({
             message: "Note deleted successfully",
             deletedNote
         });
-
     } catch (error) {
         res.status(500).json({
             message: error.message
