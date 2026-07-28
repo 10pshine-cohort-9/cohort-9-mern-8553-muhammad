@@ -8,11 +8,11 @@ const {
     updateNote,
     deleteNote
 } = require("../controllers/note.controller");
-
-router.post("/", createNote);
+const validateNote = require("../middleware/noteValidation");
+const validateObjectId = require("../middleware/validateObjectId");
+router.post("/", validateNote, createNote);
 router.get("/", getAllNotes);
-router.get("/:id", getNoteById);
-router.put("/:id", updateNote);
-router.delete("/:id", deleteNote);
-
+router.get("/:id", validateObjectId, getNoteById);
+router.put("/:id", validateObjectId, validateNote, updateNote);
+router.delete("/:id", validateObjectId, deleteNote);
 module.exports = router;
