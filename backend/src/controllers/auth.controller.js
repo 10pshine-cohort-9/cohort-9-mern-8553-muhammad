@@ -26,11 +26,16 @@ const register = async (req, res) => {
             }
         });
     } catch (error) {
-    console.error(error);
-    res.status(500).json({
-        message: "Internal Server Error"
-    });
-}
+        console.error(error);
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: "User already exists"
+            });
+        }
+        res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
 };
 const login = async (req, res) => {
     try {
@@ -62,11 +67,12 @@ const login = async (req, res) => {
             token
         });
     } catch (error) {
-    console.error(error);
-    res.status(500).json({
-        message: "Internal Server Error"
-    });
-}
+        console.error(error);
+
+        res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
 };
 const profile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id).select("-password");
