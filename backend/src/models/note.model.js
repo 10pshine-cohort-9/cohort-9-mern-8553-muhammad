@@ -4,7 +4,8 @@ const noteSchema = new mongoose.Schema({
     content: String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "User",
+        required: true
     }
 });
 const Note = mongoose.model("Note", noteSchema);

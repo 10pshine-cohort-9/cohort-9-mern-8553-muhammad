@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const asyncHandler = require("../middleware/asyncHandler");
 const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -25,10 +26,11 @@ const register = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        });
-    }
+    console.error(error);
+    res.status(500).json({
+        message: "Internal Server Error"
+    });
+}
 };
 const login = async (req, res) => {
     try {
@@ -60,15 +62,21 @@ const login = async (req, res) => {
             token
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message
+    console.error(error);
+    res.status(500).json({
+        message: "Internal Server Error"
+    });
+}
+};
+const profile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+        return res.status(404).json({
+            message: "User not found"
         });
     }
-};
-const profile = async (req, res) => {
-    const user = await User.findById(req.user.id).select("-password");
     res.status(200).json(user);
-};
+});
 module.exports = {
     register,
     login,
