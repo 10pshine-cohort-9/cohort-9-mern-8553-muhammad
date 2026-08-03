@@ -5,12 +5,12 @@ const noteRoutes = require("./routes/note.routes");
 const authRoutes = require("./routes/auth.routes");
 const errorHandler = require("./middleware/errorHandler");
 const app = express();
-app.use(express.json());
 app.use(
     pinoHttp({
         logger
     })
 );
+app.use(express.json());
 app.use("/notes", noteRoutes);
 app.use("/auth", authRoutes);
 app.get("/", (req, res) => {

@@ -8,7 +8,7 @@ const register = async (req, res) => {
         const { name, email, password } = req.body;
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            logger.warn({ email }, "Registration failed: User already exists");
+            logger.warn("Registration failed: User already exists");
             return res.status(400).json({
                 message: "User already exists"
             });
@@ -21,8 +21,7 @@ const register = async (req, res) => {
         });
         logger.info(
             {
-                userId: user._id,
-                email: user.email
+                userId: user._id
             },
             "User registered successfully"
         );
@@ -51,14 +50,14 @@ const login = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) {
-            logger.warn({ email }, "Login failed: User not found");
+            logger.warn("Login failed: Invalid email or password");
             return res.status(400).json({
                 message: "Invalid email or password"
             });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            logger.warn({ email }, "Login failed: Invalid password");
+            logger.warn("Login failed: Invalid email or password");
             return res.status(400).json({
                 message: "Invalid email or password"
             });
@@ -75,8 +74,7 @@ const login = async (req, res) => {
         );
         logger.info(
             {
-                userId: user._id,
-                email: user.email
+                userId: user._id
             },
             "User logged in successfully"
         );
@@ -92,25 +90,25 @@ const login = async (req, res) => {
     }
 };
 const profile = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.user.id).select("-password");
-    if (!user) {
-        logger.warn(
+    try {
+        const user = await User.findById(req.user.id).select("-password");
+        if (!user) {
+            logger.warn("Profile not found");
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+        logger.info(
             {
-                userId: req.user.id
+                userId: user._id
             },
-            "Profile not found"
+            "Profile fetched successfully"
         );
-        return res.status(404).json({
-            message: "User not found"
-        });
+        res.status(200).json(user);
+    } catch (error) {
+        logger.error(error, "Failed to fetch profile");
+        throw error;
     }
-    logger.info(
-        {
-            userId: user._id
-        },
-        "Profile fetched successfully"
-    );
-    res.status(200).json(user);
 });
 module.exports = {
     register,
