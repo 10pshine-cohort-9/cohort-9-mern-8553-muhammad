@@ -2,11 +2,13 @@ const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("../middleware/asyncHandler");
+const logger = require("../config/logger");
 const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
         const existingUser = await User.findOne({ email });
         if (existingUser) {
+            logger.warn({ email }, "Registration failed: User already exists");
             return res.status(400).json({
                 message: "User already exists"
             });
@@ -17,6 +19,13 @@ const register = async (req, res) => {
             email,
             password: hashedPassword
         });
+        logger.info(
+            {
+                userId: user._id,
+                email: user.email
+            },
+            "User registered successfully"
+        );
         res.status(201).json({
             message: "User registered successfully",
             user: {
@@ -26,7 +35,7 @@ const register = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error(error);
+        logger.error(error, "Registration failed");
         if (error.code === 11000) {
             return res.status(400).json({
                 message: "User already exists"
@@ -42,12 +51,14 @@ const login = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) {
+            logger.warn({ email }, "Login failed: User not found");
             return res.status(400).json({
                 message: "Invalid email or password"
             });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+            logger.warn({ email }, "Login failed: Invalid password");
             return res.status(400).json({
                 message: "Invalid email or password"
             });
@@ -62,13 +73,19 @@ const login = async (req, res) => {
                 expiresIn: "1h"
             }
         );
+        logger.info(
+            {
+                userId: user._id,
+                email: user.email
+            },
+            "User logged in successfully"
+        );
         res.status(200).json({
             message: "Login successful",
             token
         });
     } catch (error) {
-        console.error(error);
-
+        logger.error(error, "Login failed");
         res.status(500).json({
             message: "Internal Server Error"
         });
@@ -77,10 +94,22 @@ const login = async (req, res) => {
 const profile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id).select("-password");
     if (!user) {
+        logger.warn(
+            {
+                userId: req.user.id
+            },
+            "Profile not found"
+        );
         return res.status(404).json({
             message: "User not found"
         });
     }
+    logger.info(
+        {
+            userId: user._id
+        },
+        "Profile fetched successfully"
+    );
     res.status(200).json(user);
 });
 module.exports = {
