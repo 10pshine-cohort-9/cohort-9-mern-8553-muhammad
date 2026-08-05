@@ -48,26 +48,33 @@ describe("Notes API", () => {
         }
     });
     test("should get all notes", async () => {
-        try {
-            await request(app)
-                .post("/notes")
-                .set("Authorization", `Bearer ${token}`)
-                .send({
-                    title: "Test Note",
-                    content: "Test Content"
-                });
-            const response = await request(app)
-                .get("/notes")
-                .set("Authorization", `Bearer ${token}`);
-            expect(response.statusCode).toBe(200);
-            expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body.length).toBe(1);
-        } catch (error) {
-            throw new Error(
-                `should get all notes failed: ${error.message}`
-            );
-        }
-    });
+    try {
+        const beforeResponse = await request(app)
+            .get("/notes")
+            .set("Authorization", `Bearer ${token}`);
+        expect(beforeResponse.statusCode).toBe(200);
+        expect(Array.isArray(beforeResponse.body)).toBe(true);
+        const beforeCount = beforeResponse.body.length;
+        const createResponse = await request(app)
+            .post("/notes")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                title: "Test Note",
+                content: "Test Content"
+            });
+        expect(createResponse.statusCode).toBe(201);
+        const response = await request(app)
+            .get("/notes")
+            .set("Authorization", `Bearer ${token}`);
+        expect(response.statusCode).toBe(200);
+        expect(Array.isArray(response.body)).toBe(true);
+        expect(response.body.length).toBe(beforeCount + 1);
+    } catch (error) {
+        throw new Error(
+            `should get all notes failed: ${error.message}`
+        );
+    }
+});
     test("should get a note by id", async () => {
         try {
             const createResponse = await request(app)
