@@ -1,24 +1,29 @@
 const request = require("supertest");
 const app = require("../src/app");
 let token;
-beforeAll(async () => {
+beforeEach(async () => {
     try {
+        const email = `noteuser_${Date.now()}_${Math.floor(
+            Math.random() * 100000
+        )}@example.com`;
         await request(app)
             .post("/auth/register")
             .send({
                 name: "Note User",
-                email: "noteuser@example.com",
+                email,
                 password: "password123"
             });
         const loginResponse = await request(app)
             .post("/auth/login")
             .send({
-                email: "noteuser@example.com",
+                email,
                 password: "password123"
             });
         token = loginResponse.body.token;
     } catch (error) {
-        throw new Error(`beforeAll failed: ${error.message}`);
+        throw new Error(
+            `beforeEach authentication setup failed: ${error.message}`
+        );
     }
 });
 describe("Notes API", () => {
@@ -44,10 +49,6 @@ describe("Notes API", () => {
     });
     test("should get all notes", async () => {
         try {
-            const initialResponse = await request(app)
-                .get("/notes")
-                .set("Authorization", `Bearer ${token}`);
-            const initialCount = initialResponse.body.length;
             await request(app)
                 .post("/notes")
                 .set("Authorization", `Bearer ${token}`)
@@ -60,7 +61,7 @@ describe("Notes API", () => {
                 .set("Authorization", `Bearer ${token}`);
             expect(response.statusCode).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body.length).toBe(initialCount + 1);
+            expect(response.body.length).toBe(1);
         } catch (error) {
             throw new Error(
                 `should get all notes failed: ${error.message}`
@@ -139,8 +140,8 @@ describe("Notes API", () => {
     });
     test("should reject unauthenticated access", async () => {
         try {
-            const response = await request(app)
-                .get("/notes");
+            const response = await request(app).get("/notes");
+
             expect(response.statusCode).toBe(401);
             expect(response.body.message).toBe(
                 "Access denied. No token provided."
