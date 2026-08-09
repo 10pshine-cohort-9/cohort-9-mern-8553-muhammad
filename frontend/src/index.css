@@ -14,6 +14,7 @@
   --sans: system-ui, 'Segoe UI', roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', roboto, sans-serif;
   --mono: ui-monospace, consolas, monospace;
+  
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
