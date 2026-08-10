@@ -107,13 +107,32 @@ describe("Authentication API", () => {
         );
     });
     test("should logout successfully", async () => {
-        const response = await request(app)
-            .post("/auth/logout");
-        expect(response.statusCode).toBe(200);
-        expect(response.body.message).toBe("Logout successful");
-        expect(response.headers["set-cookie"]).toBeDefined();
-        expect(response.headers["set-cookie"][0]).toContain(
-            "auth_token="
-        );
+        try {
+            const response = await request(app)
+                .post("/auth/logout");
+            expect(response.statusCode).toBe(200);
+            expect(response.body.message).toBe("Logout successful");
+            const setCookie = response.headers["set-cookie"];
+            expect(setCookie).toBeDefined();
+            const authCookie = setCookie.find((cookie) =>
+                cookie.startsWith("auth_token=")
+            );
+            expect(authCookie).toBeDefined();
+            const expiresMatch = authCookie.match(
+                /Expires=([^;]+)/i
+            );
+            expect(expiresMatch).not.toBeNull();
+            const expiresAt = new Date(
+                expiresMatch[1]
+            ).getTime();
+            expect(expiresAt).toBeLessThanOrEqual(Date.now());
+        } catch (error) {
+            throw new Error(
+                `should logout successfully failed: ${error.message}`,
+                {
+                    cause: error
+                }
+            );
+        }
     });
 });
