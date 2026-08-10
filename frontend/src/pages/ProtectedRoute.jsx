@@ -11,7 +11,7 @@ function ProtectedRoute({ children }) {
                 await getProfile();
                 setAuthenticated(true);
             } catch (error) {
-                if (error.status === 401) {
+                if (error.status === 401 || error.status === 403) {
                     setAuthenticated(false);
                 } else {
                     setError(
