@@ -10,7 +10,9 @@ describe("Authentication API", () => {
                 password: "password123"
             });
         expect(response.statusCode).toBe(201);
-        expect(response.body.message).toBe("User registered successfully");
+        expect(response.body.message).toBe(
+            "User registered successfully"
+        );
         expect(response.body.user).toHaveProperty("id");
         expect(response.body.user.name).toBe("Test User");
         expect(response.body.user.email).toBe("test@example.com");
@@ -49,8 +51,10 @@ describe("Authentication API", () => {
             });
         expect(response.statusCode).toBe(200);
         expect(response.body.message).toBe("Login successful");
-        expect(response.body).toHaveProperty("token");
-        expect(typeof response.body.token).toBe("string");
+        expect(response.headers["set-cookie"]).toBeDefined();
+        expect(response.headers["set-cookie"][0]).toContain(
+            "auth_token="
+        );
     });
     test("should not login with invalid password", async () => {
         await request(app)
@@ -67,9 +71,11 @@ describe("Authentication API", () => {
                 password: "wrongpassword"
             });
         expect(response.statusCode).toBe(400);
-        expect(response.body.message).toBe("Invalid email or password");
+        expect(response.body.message).toBe(
+            "Invalid email or password"
+        );
     });
-    test("should get user profile with a valid token", async () => {
+    test("should get user profile with a valid cookie", async () => {
         await request(app)
             .post("/auth/register")
             .send({
@@ -83,10 +89,10 @@ describe("Authentication API", () => {
                 email: "profile@example.com",
                 password: "password123"
             });
-        const token = loginResponse.body.token;
+        const cookies = loginResponse.headers["set-cookie"];
         const response = await request(app)
             .get("/auth/profile")
-            .set("Authorization", `Bearer ${token}`);
+            .set("Cookie", cookies);
         expect(response.statusCode).toBe(200);
         expect(response.body.name).toBe("Profile User");
         expect(response.body.email).toBe("profile@example.com");
@@ -98,6 +104,16 @@ describe("Authentication API", () => {
         expect(response.statusCode).toBe(401);
         expect(response.body.message).toBe(
             "Access denied. No token provided."
+        );
+    });
+    test("should logout successfully", async () => {
+        const response = await request(app)
+            .post("/auth/logout");
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toBe("Logout successful");
+        expect(response.headers["set-cookie"]).toBeDefined();
+        expect(response.headers["set-cookie"][0]).toContain(
+            "auth_token="
         );
     });
 });

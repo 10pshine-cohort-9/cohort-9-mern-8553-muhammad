@@ -1,10 +1,12 @@
-const API_URL = "http://localhost:5000";
+const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:5000";
 const register = async (userData) => {
     const response = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
+        credentials: "include",
         body: JSON.stringify(userData)
     });
     const data = await response.json();
@@ -19,34 +21,38 @@ const login = async (credentials) => {
         headers: {
             "Content-Type": "application/json"
         },
+        credentials: "include",
         body: JSON.stringify(credentials)
     });
     const data = await response.json();
     if (!response.ok) {
         throw new Error(data.message || "Login failed");
     }
-    localStorage.setItem("token", data.token);
     return data;
 };
 const getProfile = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-        throw new Error("No authentication token found");
-    }
     const response = await fetch(`${API_URL}/auth/profile`, {
         method: "GET",
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+        credentials: "include"
     });
     const data = await response.json();
     if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch profile");
+        throw new Error(
+            data.message || "Failed to fetch profile"
+        );
     }
     return data;
 };
-const logout = () => {
-    localStorage.removeItem("token");
+const logout = async () => {
+    const response = await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include"
+    });
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.message || "Logout failed");
+    }
+    return data;
 };
 export {
     register,
