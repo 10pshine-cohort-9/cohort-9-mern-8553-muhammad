@@ -15,14 +15,26 @@ const request = async (url, options, defaultMessage) => {
             });
         }
         if (!response.ok) {
-            throw new Error(data.message || defaultMessage);
+            const error = new Error(
+                data.message || defaultMessage
+            );
+            error.status = response.status;
+            throw error;
         }
         return data;
     } catch (error) {
-        if (error instanceof Error && error.message !== "Invalid server response") {
-            throw new Error(error.message || defaultMessage, {
-                cause: error
-            });
+        if (
+            error instanceof Error &&
+            error.message !== "Invalid server response"
+        ) {
+            const serviceError = new Error(
+                error.message || defaultMessage,
+                {
+                    cause: error
+                }
+            );
+            serviceError.status = error.status;
+            throw serviceError;
         }
         throw error;
     }
