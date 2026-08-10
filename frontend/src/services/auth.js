@@ -1,58 +1,75 @@
 const API_URL =
     import.meta.env.VITE_API_URL || "http://localhost:5000";
-const register = async (userData) => {
-    const response = await fetch(`${API_URL}/auth/register`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify(userData)
-    });
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+const request = async (url, options, defaultMessage) => {
+    try {
+        const response = await fetch(url, {
+            ...options,
+            credentials: "include"
+        });
+        let data;
+        try {
+            data = await response.json();
+        } catch (error) {
+            throw new Error("Invalid server response", {
+                cause: error
+            });
+        }
+        if (!response.ok) {
+            throw new Error(data.message || defaultMessage);
+        }
+        return data;
+    } catch (error) {
+        if (error instanceof Error && error.message !== "Invalid server response") {
+            throw new Error(error.message || defaultMessage, {
+                cause: error
+            });
+        }
+        throw error;
     }
-    return data;
+};
+const register = async (userData) => {
+    return request(
+        `${API_URL}/auth/register`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(userData)
+        },
+        "Registration failed"
+    );
 };
 const login = async (credentials) => {
-    const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
+    return request(
+        `${API_URL}/auth/login`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(credentials)
         },
-        credentials: "include",
-        body: JSON.stringify(credentials)
-    });
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || "Login failed");
-    }
-    return data;
+        "Login failed"
+    );
 };
 const getProfile = async () => {
-    const response = await fetch(`${API_URL}/auth/profile`, {
-        method: "GET",
-        credentials: "include"
-    });
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(
-            data.message || "Failed to fetch profile"
-        );
-    }
-    return data;
+    return request(
+        `${API_URL}/auth/profile`,
+        {
+            method: "GET"
+        },
+        "Failed to fetch profile"
+    );
 };
 const logout = async () => {
-    const response = await fetch(`${API_URL}/auth/logout`, {
-        method: "POST",
-        credentials: "include"
-    });
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || "Logout failed");
-    }
-    return data;
+    return request(
+        `${API_URL}/auth/logout`,
+        {
+            method: "POST"
+        },
+        "Logout failed"
+    );
 };
 export {
     register,
