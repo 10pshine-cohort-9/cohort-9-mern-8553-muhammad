@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import Notes from "./pages/Notes";
+import NoteEditor from "./pages/NoteEditor";
 function App() {
     return (
         <BrowserRouter>
@@ -33,6 +34,22 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <Notes />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/notes/new"
+                    element={
+                        <ProtectedRoute>
+                            <NoteEditor />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/notes/:id"
+                    element={
+                        <ProtectedRoute>
+                            <NoteEditor />
                         </ProtectedRoute>
                     }
                 />
