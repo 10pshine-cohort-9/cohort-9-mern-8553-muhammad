@@ -21,7 +21,12 @@ function NoteEditor() {
     const [loading, setLoading] = useState(Boolean(id));
     const editor = useEditor({
         extensions: [StarterKit],
-        content: ""
+        content: "",
+        editorProps: {
+            attributes: {
+                "aria-label": "Note content"
+            }
+        }
     });
     const editorState = useEditorState({
         editor,
