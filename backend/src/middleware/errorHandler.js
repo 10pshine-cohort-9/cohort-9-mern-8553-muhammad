@@ -1,9 +1,18 @@
+const logger = require("../config/logger");
 const errorHandler = (err, req, res, next) => {
-    console.error(err);
+    const statusCode = err.statusCode || 500;
+    logger.error(
+        {
+            err,
+            method: req.method,
+            url: req.originalUrl,
+            statusCode
+        },
+        "Request failed"
+    );
     if (res.headersSent) {
         return next(err);
     }
-    const statusCode = err.statusCode || 500;
     res.status(statusCode).json({
         message:
             statusCode >= 500
