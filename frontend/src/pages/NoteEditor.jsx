@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     useEditor,
-    EditorContent,
-    useEditorState
+    EditorContent
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
@@ -19,6 +18,7 @@ function NoteEditor() {
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(Boolean(id));
+    const [editorVersion, setEditorVersion] = useState(0);
     const editor = useEditor({
         extensions: [StarterKit],
         content: "",
@@ -28,41 +28,18 @@ function NoteEditor() {
             }
         }
     });
-    const editorState = useEditorState({
-        editor,
-        selector: ({ editor }) => {
-            if (!editor) {
-                return {
-                    isBold: false,
-                    isItalic: false,
-                    isH1: false,
-                    isH2: false,
-                    isBulletList: false,
-                    isOrderedList: false,
-                    canUndo: false,
-                    canRedo: false
-                };
-            }
-            return {
-                isBold: editor.isActive("bold"),
-                isItalic: editor.isActive("italic"),
-                isH1: editor.isActive("heading", {
-                    level: 1
-                }),
-                isH2: editor.isActive("heading", {
-                    level: 2
-                }),
-                isBulletList: editor.isActive(
-                    "bulletList"
-                ),
-                isOrderedList: editor.isActive(
-                    "orderedList"
-                ),
-                canUndo: editor.can().undo(),
-                canRedo: editor.can().redo()
-            };
+    useEffect(() => {
+        if (!editor) {
+            return;
         }
-    });
+        const handleUpdate = () => {
+            setEditorVersion((version) => version + 1);
+        };
+        editor.on("transaction", handleUpdate);
+        return () => {
+            editor.off("transaction", handleUpdate);
+        };
+    }, [editor]);
     useEffect(() => {
         if (!id || !editor) {
             return;
@@ -74,8 +51,11 @@ function NoteEditor() {
                 setError("");
                 const data = await getNote(id);
                 const note = data.note || data;
+                if (!note) {
+                    throw new Error("Note not found");
+                }
                 if (!ignore) {
-                    setTitle(note.title);
+                    setTitle(note.title || "");
                     editor.commands.setContent(
                         note.content || ""
                     );
@@ -98,9 +78,30 @@ function NoteEditor() {
             ignore = true;
         };
     }, [id, editor]);
-    if (!editor || loading || !editorState) {
-        return <p>Loading editor...</p>;
+    if (!editor || loading) {
+        return (
+            <main className="note-editor">
+                <p>Loading editor...</p>
+            </main>
+        );
     }
+    const isBold = editor.isActive("bold");
+    const isItalic = editor.isActive("italic");
+    const isH1 = editor.isActive("heading", {
+        level: 1
+    });
+    const isH2 = editor.isActive("heading", {
+        level: 2
+    });
+    const isBulletList = editor.isActive(
+        "bulletList"
+    );
+    const isOrderedList = editor.isActive(
+        "orderedList"
+    );
+    const canUndo = editor.can().undo();
+    const canRedo = editor.can().redo();
+    void editorVersion;
     const handleSave = async () => {
         const trimmedTitle = title.trim();
         const content = editor.getHTML();
@@ -152,7 +153,9 @@ function NoteEditor() {
                 </p>
             )}
             <div className="note-editor__field">
-                <label htmlFor="title">Title</label>
+                <label htmlFor="title">
+                    Title
+                </label>
                 <input
                     id="title"
                     type="text"
@@ -173,7 +176,7 @@ function NoteEditor() {
                             .toggleBold()
                             .run()
                     }
-                    aria-pressed={editorState.isBold}
+                    aria-pressed={isBold}
                 >
                     Bold
                 </button>
@@ -186,7 +189,7 @@ function NoteEditor() {
                             .toggleItalic()
                             .run()
                     }
-                    aria-pressed={editorState.isItalic}
+                    aria-pressed={isItalic}
                 >
                     Italic
                 </button>
@@ -201,7 +204,7 @@ function NoteEditor() {
                             })
                             .run()
                     }
-                    aria-pressed={editorState.isH1}
+                    aria-pressed={isH1}
                 >
                     H1
                 </button>
@@ -216,7 +219,7 @@ function NoteEditor() {
                             })
                             .run()
                     }
-                    aria-pressed={editorState.isH2}
+                    aria-pressed={isH2}
                 >
                     H2
                 </button>
@@ -229,9 +232,7 @@ function NoteEditor() {
                             .toggleBulletList()
                             .run()
                     }
-                    aria-pressed={
-                        editorState.isBulletList
-                    }
+                    aria-pressed={isBulletList}
                 >
                     Bullet List
                 </button>
@@ -244,23 +245,25 @@ function NoteEditor() {
                             .toggleOrderedList()
                             .run()
                     }
-                    aria-pressed={
-                        editorState.isOrderedList
-                    }
+                    aria-pressed={isOrderedList}
                 >
                     Numbered List
                 </button>
                 <button
                     type="button"
-                    onClick={() => editor.commands.undo()}
-                    disabled={!editorState.canUndo}
+                    onClick={() =>
+                        editor.commands.undo()
+                    }
+                    disabled={!canUndo}
                 >
                     Undo
                 </button>
                 <button
                     type="button"
-                    onClick={() => editor.commands.redo()}
-                    disabled={!editorState.canRedo}
+                    onClick={() =>
+                        editor.commands.redo()
+                    }
+                    disabled={!canRedo}
                 >
                     Redo
                 </button>
