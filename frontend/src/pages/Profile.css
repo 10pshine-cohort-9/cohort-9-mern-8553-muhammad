@@ -1,0 +1,118 @@
+.profile-page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 28px;
+}
+.profile-page__heading {
+    margin-bottom: 28px;
+}
+.profile-page__eyebrow {
+    margin-bottom: 6px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.profile-page__heading h1 {
+    margin: 0 0 8px;
+    color: #172033;
+    font-size: 36px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+.profile-page__heading > p:last-child {
+    color: #64748b;
+    font-size: 15px;
+}
+.profile-card {
+    padding: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+.profile-card__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 28px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 700;
+}
+.profile-card__details {
+    display: flex;
+    flex-direction: column;
+}
+.profile-card__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+.profile-card__field:first-child {
+    padding-top: 0;
+}
+.profile-card__field span {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+.profile-card__field strong {
+    color: #172033;
+    font-size: 16px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+.profile-card__logout {
+    margin-top: 28px;
+    padding: 10px 18px;
+    border: 1px solid #dc2626;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #dc2626;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+.profile-card__logout:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+.profile-card__logout:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.profile-card__loading {
+    color: #64748b;
+    text-align: center;
+}
+.profile-card__error {
+    margin: 20px 0 0;
+    padding: 11px 14px;
+    border: 1px solid #fecaca;
+    border-radius: 7px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 14px;
+}
+@media (max-width: 600px) {
+    .profile-page {
+        padding: 32px 20px;
+    }
+    .profile-page__heading h1 {
+        font-size: 30px;
+    }
+    .profile-card {
+        padding: 24px;
+    }
+}
