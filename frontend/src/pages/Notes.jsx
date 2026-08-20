@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { getNotes, deleteNote } from "../services/notes";
@@ -6,6 +6,7 @@ import "./Notes.css";
 function Notes() {
     const navigate = useNavigate();
     const [notes, setNotes] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     useEffect(() => {
@@ -35,6 +36,23 @@ function Notes() {
             ignore = true;
         };
     }, []);
+    const filteredNotes = useMemo(() => {
+        const normalizedSearchTerm =
+            searchTerm.trim().toLowerCase();
+        if (!normalizedSearchTerm) {
+            return notes;
+        }
+        return notes.filter((note) => {
+            const title =
+                note.title?.toLowerCase() || "";
+            const content =
+                note.content?.toLowerCase() || "";
+            return (
+                title.includes(normalizedSearchTerm) ||
+                content.includes(normalizedSearchTerm)
+            );
+        });
+    }, [notes, searchTerm]);
     const handleDelete = async (id) => {
         try {
             setError("");
@@ -57,7 +75,9 @@ function Notes() {
     return (
         <main className="notes-page">
             <header className="notes-page__header">
-                <h1>My Notes</h1>
+                <div>
+                    <h1>My Notes</h1>
+                </div>
                 <button
                     className="notes-page__create"
                     type="button"
@@ -74,12 +94,33 @@ function Notes() {
                 </p>
             )}
             <section>
-                <h2>Notes</h2>
+                <div className="notes-page__section-header">
+                    <h2>Notes</h2>
+                    <label
+                        className="notes-page__search"
+                        htmlFor="note-search"
+                    >
+                        <span>Search notes</span>
+                        <input
+                            id="note-search"
+                            type="search"
+                            value={searchTerm}
+                            onChange={(event) =>
+                                setSearchTerm(
+                                    event.target.value
+                                )
+                            }
+                            placeholder="Search by title or content"
+                        />
+                    </label>
+                </div>
                 {notes.length === 0 ? (
                     <p>No notes found.</p>
+                ) : filteredNotes.length === 0 ? (
+                    <p>No matching notes found.</p>
                 ) : (
                     <div className="notes-page__list">
-                        {notes.map((note) => (
+                        {filteredNotes.map((note) => (
                             <article
                                 className="notes-page__card"
                                 key={note._id}
@@ -88,9 +129,10 @@ function Notes() {
                                 <div
                                     className="notes-page__content"
                                     dangerouslySetInnerHTML={{
-                                        __html: DOMPurify.sanitize(
-                                            note.content
-                                        )
+                                        __html:
+                                            DOMPurify.sanitize(
+                                                note.content
+                                            )
                                     }}
                                 />
                                 <div className="notes-page__actions">
