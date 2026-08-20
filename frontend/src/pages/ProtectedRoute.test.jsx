@@ -66,6 +66,17 @@ describe("ProtectedRoute", () => {
             })
         ).toBeInTheDocument();
     });
+    test("redirects to login for forbidden users", async () => {
+        getProfile.mockRejectedValue({
+            status: 403
+        });
+        renderProtectedRoute();
+        expect(
+            await screen.findByRole("heading", {
+                name: "Login Page"
+            })
+        ).toBeInTheDocument();
+    });
     test(
         "shows an error for authentication failures other than 401 or 403",
         async () => {
