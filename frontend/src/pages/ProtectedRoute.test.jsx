@@ -46,50 +46,86 @@ describe("ProtectedRoute", () => {
         ).toBeInTheDocument();
     });
     test("renders protected content when authenticated", async () => {
-        getProfile.mockResolvedValue({});
-        renderProtectedRoute();
-        expect(
-            await screen.findByRole("heading", {
-                name: "Protected Content"
-            })
-        ).toBeInTheDocument();
-        expect(getProfile).toHaveBeenCalledTimes(1);
+        try {
+            getProfile.mockResolvedValue({});
+            renderProtectedRoute();
+            expect(
+                await screen.findByRole("heading", {
+                    name: "Protected Content"
+                })
+            ).toBeInTheDocument();
+            expect(getProfile).toHaveBeenCalledTimes(1);
+        } catch (error) {
+            throw new Error(
+                "Failed to test authenticated protected route",
+                {
+                    cause: error
+                }
+            );
+        }
     });
     test("redirects to login for unauthorized users", async () => {
-        getProfile.mockRejectedValue({
-            status: 401
-        });
-        renderProtectedRoute();
-        expect(
-            await screen.findByRole("heading", {
-                name: "Login Page"
-            })
-        ).toBeInTheDocument();
+        try {
+            getProfile.mockRejectedValue({
+                status: 401
+            });
+            renderProtectedRoute();
+            expect(
+                await screen.findByRole("heading", {
+                    name: "Login Page"
+                })
+            ).toBeInTheDocument();
+        } catch (error) {
+            throw new Error(
+                "Failed to test 401 redirect to login",
+                {
+                    cause: error
+                }
+            );
+        }
     });
     test("redirects to login for forbidden users", async () => {
-        getProfile.mockRejectedValue({
-            status: 403
-        });
-        renderProtectedRoute();
-        expect(
-            await screen.findByRole("heading", {
-                name: "Login Page"
-            })
-        ).toBeInTheDocument();
+        try {
+            getProfile.mockRejectedValue({
+                status: 403
+            });
+            renderProtectedRoute();
+            expect(
+                await screen.findByRole("heading", {
+                    name: "Login Page"
+                })
+            ).toBeInTheDocument();
+        } catch (error) {
+            throw new Error(
+                "Failed to test 403 redirect to login",
+                {
+                    cause: error
+                }
+            );
+        }
     });
     test(
         "shows an error for authentication failures other than 401 or 403",
         async () => {
-            getProfile.mockRejectedValue({
-                status: 500,
-                message: "Server error"
-            });
-            renderProtectedRoute();
-            await waitFor(() => {
-                expect(
-                    screen.getByText("Server error")
-                ).toBeInTheDocument();
-            });
+            try {
+                getProfile.mockRejectedValue({
+                    status: 500,
+                    message: "Server error"
+                });
+                renderProtectedRoute();
+                await waitFor(() => {
+                    expect(
+                        screen.getByText("Server error")
+                    ).toBeInTheDocument();
+                });
+            } catch (error) {
+                throw new Error(
+                    "Failed to test authentication error handling",
+                    {
+                        cause: error
+                    }
+                );
+            }
         }
     );
 });
