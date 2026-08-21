@@ -48,25 +48,23 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-
         const user = await User.findOne({ email });
-
         if (!user) {
             logger.warn("Login failed: Invalid email or password");
             return res.status(400).json({
                 message: "Invalid email or password"
             });
         }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-
+        const isMatch = await bcrypt.compare(
+            password,
+            user.password
+        );
         if (!isMatch) {
             logger.warn("Login failed: Invalid email or password");
             return res.status(400).json({
                 message: "Invalid email or password"
             });
         }
-
         const token = jwt.sign(
             {
                 id: user._id,
@@ -86,8 +84,8 @@ const login = async (req, res) => {
         res
             .cookie("auth_token", token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
+                secure: true,
+                sameSite: "none",
                 maxAge: 60 * 60 * 1000
             })
             .status(200)
@@ -103,7 +101,8 @@ const login = async (req, res) => {
 };
 const profile = asyncHandler(async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select("-password");
+        const user = await User.findById(req.user.id)
+            .select("-password");
         if (!user) {
             logger.warn("Profile not found");
             return res.status(404).json({
@@ -125,8 +124,8 @@ const profile = asyncHandler(async (req, res) => {
 const logout = (req, res) => {
     res.clearCookie("auth_token", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax"
+        secure: true,
+        sameSite: "none"
     });
     res.status(200).json({
         message: "Logout successful"
