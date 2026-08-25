@@ -7,6 +7,7 @@ const noteRoutes = require("./routes/note.routes");
 const authRoutes = require("./routes/auth.routes");
 const errorHandler = require("./middleware/errorHandler");
 const app = express();
+app.disable("x-powered-by");
 app.use(
     pinoHttp({
         logger

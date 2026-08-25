@@ -1,3 +1,6 @@
 backend/node_modules/
 .env
 project.txt
+.scannerwork/
+backend/coverage/
+frontend/coverage/
