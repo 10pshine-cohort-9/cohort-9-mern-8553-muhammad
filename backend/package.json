@@ -3,12 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
-  "test": "jest --runInBand",
-  "test:coverage": "jest --runInBand --coverage",
-  "start": "node src/server.js"
-},
+  "scripts": {
     "test": "jest --runInBand",
+    "test:coverage": "jest --runInBand --coverage",
     "start": "node src/server.js"
   },
   "keywords": [],
