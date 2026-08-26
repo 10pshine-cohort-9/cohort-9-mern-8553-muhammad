@@ -12,11 +12,19 @@ app.use(
         logger
     })
 );
-const frontendOrigin =
-process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://cohort-9-mern-8553-muhammad.vercel.app"
+];
 app.use(
     cors({
-        origin: frontendOrigin,
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
         credentials: true
     })
 );
