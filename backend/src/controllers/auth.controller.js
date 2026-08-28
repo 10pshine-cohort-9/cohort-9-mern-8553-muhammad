@@ -34,7 +34,14 @@ const register = async (req, res) => {
             }
         });
     } catch (error) {
-        logger.error(error, "Registration failed");
+        logger.error(
+    {
+        err: error,
+        message: error.message,
+        stack: error.stack
+    },
+    "Registration failed"
+);
         if (error.code === 11000) {
             return res.status(400).json({
                 message: "User already exists"
