@@ -1,5 +1,7 @@
 # cohort-9-mern-8553-muhammad
-Cohort 9 — MERN (NodeJS+ReactJS) assignment for Muhammad Zayan Ehsan
+
+Cohort 9 — MERN (NodeJS + ReactJS) assignment for Muhammad Zayan Ehsan.
+
 # MERN Notes Management System
 
 A full-stack Notes Management System built using the MERN stack. The application allows users to create an account, log in securely, and manage their personal notes.
@@ -75,12 +77,34 @@ The application supports complete CRUD operations:
 - **Update** an existing note.
 - **Delete** a note.
 
-Users can only access their own notes through the authenticated backend requests.
+Users can only access their own notes through authenticated backend requests.
 
 The note editor also supports rich-text content using Tiptap, and content is sanitized using DOMPurify.
 
 ---
 
+## API
+
+### Authentication
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/auth/register` | Register a new user |
+| `POST` | `/auth/login` | Log in |
+| `POST` | `/auth/logout` | Log out |
+| `GET` | `/auth/profile` | Get the user's profile |
+
+### Notes
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/notes` | Create a note |
+| `GET` | `/notes` | Get all notes |
+| `GET` | `/notes/:id` | Get a specific note |
+| `PUT` | `/notes/:id` | Update a note |
+| `DELETE` | `/notes/:id` | Delete a note |
+
+---
 
 ## Validation and Error Handling
 
@@ -158,6 +182,36 @@ npm run lint
 
 ---
 
+## Environment Variables
+
+Create a `.env` file inside the `backend` folder using `backend/.env.example` as a template.
+
+```bash
+cd backend
+copy .env.example .env
+```
+
+Then update the values in `.env`:
+
+```env
+PORT=5000
+MONGODB_URI=<your-mongodb-connection-string>
+JWT_SECRET=<your-jwt-secret>
+NODE_ENV=development
+FRONTEND_ORIGIN=http://localhost:5173
+```
+
+The environment variables are used for:
+
+- `PORT` - Port used by the backend server.
+- `MONGODB_URI` - MongoDB database connection string.
+- `JWT_SECRET` - Secret used for JWT authentication.
+- `NODE_ENV` - Application environment.
+- `FRONTEND_ORIGIN` - URL of the frontend application.
+
+Do not commit real passwords, database credentials, JWT secrets, or other sensitive information.
+
+---
 
 ## How to Run the Project
 
@@ -184,7 +238,7 @@ http://localhost:5000
 
 ### Frontend
 
-Open another terminal and install dependencies:
+Open another terminal and install the frontend dependencies:
 
 ```bash
 cd frontend
